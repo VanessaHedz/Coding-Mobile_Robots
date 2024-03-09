@@ -1,0 +1,98 @@
+
+//Lo hice para el BUG 1 pero se buguea *badum tss*
+
+switch ( state ){
+        case 0:
+                if (intensity == 1)
+                {
+                       gen_vector=generate_output(STOP,Mag_Advance,max_angle);
+                       printf("STOP"); 
+                       *next_state=0;
+                }
+                else
+                {       
+                        //Orientate the robot to the light source  
+                        gen_vector=OrientateRobot(Mag_Advance,angle_light);
+                        printf("FORWARD"); 
+                        *next_state=1;
+
+                        
+                }
+
+                break;
+        
+        case 1:
+                if(obs == 0){
+                        gen_vector=generate_output(FORWARD,Mag_Advance,max_angle);
+                        *next_state=0; //Go back and check the sensors?
+                        printf("Present state: %d FORWARD\n",state);
+                }
+                else{
+
+                        gen_vector=generate_output(STOP,Mag_Advance,max_angle);
+                        printf("Present State: %d STOP\n", state);
+
+                        if (obs == 1){
+                                // obtacle in the  right
+                                *next_state = 2;
+                        }
+                        else if (obs == 2){
+                                // obtacle in the left
+                                *next_state = 3;
+                        }
+                        else if (obs == 3){
+                                // obstacle in the front
+                                *next_state = 4;
+                        }
+                }
+                break;
+        
+        case 2:
+                if (obs == 3)
+                {
+                        //There is also an obstacle in front
+                        gen_vector=generate_output(LEFT,Mag_Advance,max_angle);
+                        printf("Present State: %d LEFT\n", state);
+                        *next_state=2; //Go back to check if the obstacle is still there
+                }
+
+                gen_vector=generate_output(FORWARD,Mag_Advance,max_angle);
+                printf("Present State: %d FORWARD\n", state);
+                *next_state=3;
+                break;
+        
+        case 3:
+                if (obs != 1)
+                {
+                        gen_vector=generate_output(RIGHT,Mag_Advance,max_angle);
+                        printf("Present State: %d RIGHT\n", state);
+                        *next_state=4;
+                }
+
+                gen_vector=generate_output(FORWARD,Mag_Advance,max_angle);
+                printf("Present State: %d FORWARD\n", state);
+                *next_state=4;
+
+                break;
+        
+        case 4:
+                if (obs != 1)
+                {
+                        gen_vector=generate_output(RIGHT,Mag_Advance,max_angle);
+                        printf("Present State: %d RIGHT\n", state);
+                        *next_state=4;
+                }
+
+                gen_vector=generate_output(FORWARD,Mag_Advance,max_angle);
+                printf("Present State: %d FORWARD\n", state);
+                *next_state=2;
+                break;
+        
+        case 5:
+                //Obstacle in the left
+                gen_vector=generate_output(FORWARD,Mag_Advance,max_angle);
+                printf("Present State: %d FORWARD\n", state);
+                *next_state=1;
+                break;
+        
+}
