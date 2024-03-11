@@ -13,22 +13,6 @@
 Hacer que ignore la luz, pq no tiene que seguir la luz.
 Hacer que vaya hacia adelante y, si encuentra una pared, que la ignore
 */
-
-/******************************************************** 
-                         FUNCTIONS
-*********************************************************/
-//Variables:
-AdvanceAngle OrientateRobot (float advance, float angle)
-{
-        AdvanceAngle output;
-        output.distance = advance;
-        output.angle = angle;
-        return(output);
-}
-
-
-
-
 // Student State Machine 
 AdvanceAngle reactive_students(Raw observations, int dest, int intensity, float Mag_Advance, float max_angle, int num_sensors){
 
@@ -265,8 +249,9 @@ switch ( state ){
                 else
                 {       
                         //Orientate the robot to the light source  
-                        gen_vector=OrientateRobot(Mag_Advance,angle_light);
-                        *next_state=1;                        
+                        gen_vector.angle = angle_light;
+                        printf("The robot is looking at the light source");
+                        *next_state = 1;                      
                 }
 
                 break;
