@@ -419,6 +419,8 @@ int shs_distance_obstacle(float x1, float y1, float x2, float y2,float dist_adva
 
 
 // it will move the robot the desire angle and distance
+// -----------------------------------------------------------------> VERIFY IF THE ROBOT COLLIDES OR IS INSIDE A POLYGON (?)
+// If there is a _unk is an "unknown" object, otherwise, it's knowned (?).
 int  mvrobot(FILE *fpw,AdvanceAngle DistTheta,coord *coord_robot ){
  int flg=0;
  int flg_unk=0;
@@ -651,6 +653,7 @@ int get_index_range(float obs, float r1, float r2, float r3){
 
 
 //void get_source(int quantized_attraction, float x, float y, int *j, int *k){
+// ----------------------------------------------------------------------------------------------------> CAMPOS POTENCIALES (P3)
 void get_source(int quantized_attraction, int *j, int *k){
 
 // Check how the quantized attraction value is generated in function quantize_destination in ..//utilities/utilities.h
@@ -960,6 +963,7 @@ void get_source_old(int attraction, float x, float y, int *j, int *k){
 //#define DEBUG1 1
 //#define DEBUG2 1
 
+//*****************************************    OCUPANCY_GRID   *************************************************************//
 void ocupancy_grid_mdp(Raw observations, int size, int attraction, struct mdp_database *mdp, float range_sensor, float *rewards){
 
   int i,j,jj,k;
