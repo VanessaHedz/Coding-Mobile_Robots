@@ -10,7 +10,7 @@ int get_inputs(int argc, char **argv, Inputs *inputs)
  inputs->xo=.10;
  inputs->yo=.10;
  inputs->angle_robot=0.0;
- inputs->xd=1.60;
+ inputs->xd=1.60; //¿Is "Destiny"?
  inputs->xd=1.60;
  strcpy(inputs->sensor,"laser");
  inputs->num_sensors=2;
