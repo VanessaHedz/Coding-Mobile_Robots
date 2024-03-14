@@ -270,9 +270,10 @@ switch ( state ){
                         gen_vector=generate_output(STOP,Mag_Advance,max_angle);
                         printf("Present State: %d STOP\n", state);
 
-                        if (observations.sensors[6]<=0.05 && observations.sensors[7]<=0.05 && observations.sensors[8]<=0.05)
+                        if (observations.sensors[6]<=0.06 && observations.sensors[7]<=0.06 && observations.sensors[8]<=0.06)
                         {
                                 // Obstacle in front. 
+                                gen_vector.distance = gen_vector.distance - 0.01;
                                 *next_state = 2;
                         }
 
@@ -280,7 +281,7 @@ switch ( state ){
                         else if (observations.sensors[4]<=0.07 && observations.sensors[5]<=0.07 && observations.sensors[6]<=0.07 && observations.sensors[7]<=0.07)
                         {
                                 // obtacle in the right and in front
-                                *next_state = 8;
+                                //*next_state = 8;
                         }
                         // THE OBSTACLE HAS COLLIDED IN DIAGONAL (\)
                         else if (observations.sensors[11]<=0.05 && observations.sensors[12]<=0.05 && observations.sensors[13]<=0.05)
@@ -299,7 +300,8 @@ switch ( state ){
                 */
 
                 //It works well with 0.08
-                if (observations.sensors[6]>0.05 && observations.sensors[7]>0.05 && observations.sensors[8]>0.05)
+                //if (observations.sensors[6]>0.06 && observations.sensors[7]>0.06 && observations.sensors[8]>0.06)
+                if (observations.sensors[6]>0.06 && observations.sensors[7]>0.09 && observations.sensors[8]>0.09)
                 {
                                 // There isn't an obstacle in front anymore
                                 *next_state = 3;
@@ -313,38 +315,47 @@ switch ( state ){
                 break;
 
         case 3:
-                //Orientate the obstacle to the right.
+                //ALIGN THE ROBOT TO THE OBSTACLE
                 if (observations.sensors[2]<=0.05 && observations.sensors[3]<=0.05 && observations.sensors[4]<=0.05)
+                //if(observations.sensors[5]<=0.05 && observations.sensors[5]>0.03)
                 {
-                                /*
-                                        KEEP COORDENATES                                
-                                */
-                                
+                        if(observations.sensors[5]<0.03)
+                        {
+                                //Rotate to the left.
+                                // ------------------------------------------------------------------------------- ?
+                                gen_vector.angle = gen_vector.angle + 0.01;
+                                *next_state = 3;
+                        }
+                        else if(observations.sensors[5]>0.05)
+                        {
+                                gen_vector.angle = gen_vector.angle - 0.01;
+                                *next_state = 3;
+                        }
+                        else
+                        {
                                 *next_state = 4;
+                        }
                 }
-                else
-                {
-                        //Rotate to the left.
-                        gen_vector.angle = gen_vector.angle + 0.01;
-                        *next_state = 3;
-                }
+                
                 break;
 
         case 4:
                 //Rodeate the obstacle
-                if(observations.sensors[2]<=0.05 && observations.sensors[3]<=0.05 && observations.sensors[4]<=0.05)
+                //if(observations.sensors[2]<=0.05 && observations.sensors[3]<=0.05 && observations.sensors[4]<=0.05)
+                if(observations.sensors[0]>0.06)
                 {
-                        //The obstacle is in the right
-                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                        //The robot has passed the obstacle
+                        gen_vector = generate_output(STOP,Mag_Advance,max_angle);
                         printf("The obstacle is in the right");
-                        *next_state = 4;
+                        *next_state = 5;
+                        
                 }
                 else
                 {
-                        //Make 1 step forward to avoid collitions 
-                        //gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                        //Te robot is to the right of the obstacle.
+                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
                         printf("The obstacle is in the right");
-                        *next_state = 5;
+                        *next_state = 4;
                 }
                 break;
 
@@ -362,7 +373,7 @@ switch ( state ){
         
         case 7:
                 gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                *next_state = 3;
+                //*next_state = 4;
                 break; 
         
         /* ------------------------- STATE MACHINES OBS IN FRONT & TO THE RIGHT ------------------------------- */
