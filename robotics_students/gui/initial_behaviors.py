@@ -57,6 +57,10 @@ elif num_behavior == 6:
 elif num_behavior == 7:
         num_bh = 7
         print "*                Testing an student FSM for the algorithm Bug 1   					*"
+        
+elif num_behavior == 8:
+	num_bh = 8
+        print "*                Testing an student Potential Fields   					*"
                  							
 else:
 	print "Behavior does not exist"
@@ -76,4 +80,3 @@ else:
 	
 
 print "**********************************************************************************************************\n" 
-
