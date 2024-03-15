@@ -54,8 +54,8 @@
 #include "../state_machines/state_machine_avoidance.h"
 #include "../state_machines/state_machine_destination.h"
 #include "../state_machines/state_machine_avoidance_destination.h"
-//#include "../state_machines/state_machine_student.h"
 #include "../state_machines/state_machine_students.h"
+#include "../state_machines/state_machine_potentialFields.h" //Potential Fields
 
 //Global variables
 float K_GOAL=CNT_GOAL*MAG_ADVANCE;
@@ -339,13 +339,26 @@ int go_to(Inputs inputs)
 
 #endif 
 				}
-				
+
+	else if(selection == 8){
+                // It calculates the robot's movement using an state machine created by an student
+                state=next_state;
+
+                // state_machine_students in ../state_machines/state_machine_potentialFields.h
+                DistTheta = potential_fields(observations, quantized_attraction, quantized_intensity,inputs.Mag_Advance,inputs.max_angle, inputs.num_sensors);
+
+#ifdef DEBUG
+                printf("Student Potential Fields: angle  %f distance %f\n",DistTheta.angle,DistTheta.distance);
+	
+
+#endif 
+				}			
 
 
-        else {
-                printf("This behavior does not exist \n");
-		exit(0);
-        }
+    else {
+            printf("This behavior does not exist \n");
+			exit(0);
+    	}
 
 
 
@@ -409,5 +422,4 @@ int main(int argc, char *argv[])
  return 0;
 
 }
-
 
