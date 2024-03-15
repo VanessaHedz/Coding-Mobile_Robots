@@ -372,45 +372,19 @@ switch ( state ){
                 break;   
         
         case 7:
-                gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                //*next_state = 4;
+                if(observations.sensors[0]>=0.06)
+                {
+                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                        *next_state = 7;
+                }
+                else
+                {
+                        *next_state = 4;
+                }
                 break; 
         
         /* ------------------------- STATE MACHINES OBS IN FRONT & TO THE RIGHT ------------------------------- */
-        case 8:
-                //Eliminates the obstacles in front
-                if (observations.sensors[6]>0.05 && observations.sensors[7]>0.05 && observations.sensors[8]>0.05)
-                {
-                                // There isn't an obstacle in front anymore
-                                *next_state = 9;
-                }
-                else
-                {
-                        //Rotate the robot 0.05 [rad] to the left
-                        gen_vector.angle = gen_vector.angle + 0.04;
-                        *next_state = 2;
-                }
-                break;
         
-        case 9:
-                //Align the robot to the obstacle, keeping the obstacle to its right
-                if(observations.sensors[2]>0.05 && observations.sensors[3]>0.05 && observations.sensors[4]>0.05)
-                {
-                        gen_vector.angle = gen_vector.angle + 0.2;
-                        *next_state = 9; //Keeps rotating to the left untill the obstacle is to the right
-                }
-                else
-                {
-                        *next_state = 10;
-                }
-                break;
-        
-        case 10:
-                
-                break;
-
-
-
         /* ------------------------- STATE MACHINES OBS IN FRONT & TO THE LEFT ------------------------------- */
 
 
