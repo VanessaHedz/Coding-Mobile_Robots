@@ -209,7 +209,8 @@ AdvanceAngle Bug1_students(Raw observations, int dest, int intensity, int state,
  int value = 0;
 
  //Variables
- coord initial_coords;
+ static coord ini_coord; //Coordenates when the robot detect an obstacle for the first time
+ coord minDistance_coord; //Coordenate when the robot is in the min distance to the light source
 
  printf("\n\n *************************** Student Bug 1 ****************************************************\n");
 
@@ -265,127 +266,65 @@ switch ( state ){
                         printf("FORWARD");
                         *next_state = 1;       
                 }
-                else
+                else if(observations.sensors[7] <= 0.06 && observations.sensors[8] <= 0.06 ||
+                        observations.sensors[10] <= 0.05 && observations.sensors[11] <= 0.05 ||
+                        observations.sensors[5] <= 0.06 && observations.sensors[6] <= 0.06 )
                 {
+                        //Verifica si se encontró alguno de los choques que esperamos:
+                                // Choque frontal (sensores [6,7,8,9])
+                                // Choque frontal + derecha (sensores [8,9,10,11,12])
+                                // Choque frontal + izquierda (sensores [4,5,6,7])
                         gen_vector=generate_output(STOP,Mag_Advance,max_angle);
                         printf("Present State: %d STOP\n", state);
 
-                        if (observations.sensors[6]<=0.06 && observations.sensors[7]<=0.06 && observations.sensors[8]<=0.06)
-                        {
-                                // Obstacle in front. 
-                                gen_vector.distance = gen_vector.distance - 0.01;
-                                *next_state = 2;
-                        }
+                                        /* GUARDA LAS COORDENADAS */
 
-                        // THE OBSTACLE HAS COLLIDED IN DIAGONAL (/)
-                        else if (observations.sensors[4]<=0.07 && observations.sensors[5]<=0.07 && observations.sensors[6]<=0.07 && observations.sensors[7]<=0.07)
-                        {
-                                // obtacle in the right and in front
-                                //*next_state = 8;
-                        }
-                        // THE OBSTACLE HAS COLLIDED IN DIAGONAL (\)
-                        else if (observations.sensors[11]<=0.05 && observations.sensors[12]<=0.05 && observations.sensors[13]<=0.05)
-                        {
-                                // obstacle in the left and in front
-                                *next_state = 2;
-                        }
-                }
-                break;
-
-        /* ----------------------------------- STATE MACHINES OBS IN FRONT -------------------------------------------*/
-
-        case 2:
-                /*
-                        KEEP THE COORDENATES FOR THE BUG 1 Algorithm 
-                */
-
-                //It works well with 0.08
-                //if (observations.sensors[6]>0.06 && observations.sensors[7]>0.06 && observations.sensors[8]>0.06)
-                if (observations.sensors[6]>0.06 && observations.sensors[7]>0.09 && observations.sensors[8]>0.09)
-                {
-                                // There isn't an obstacle in front anymore
-                                *next_state = 3;
-                }
-                else
-                {
-                        //Rotate the robot 0.05 [rad] to the left
-                        gen_vector.angle = gen_vector.angle + 0.04;
+                        ini_coord = coord_robot; //Keep the coordenates when the robot detect an obsacle
                         *next_state = 2;
                 }
                 break;
+        
+        case 2:
+                //Aunque todos parezcan funcionar con el mismo estado, lo dejaré así por si pasa cualquier cosa :D.
 
+                if(observations.sensors[7] <= 0.06 && observations.sensors[8] <= 0.06)
+                {
+                        //Obs in front. Go to the state machine OBS IN FRONT
+                        *next_state = 3;
+                }
+                else if(observations.sensors[10] <= 0.06 && observations.sensors[11] <= 0.06)
+                {
+                        //Obs to the left. Go to the state machine OBS IN FRONT + LEFT
+                        *next_state = 3;
+                }
+                else if(observations.sensors[5] <= 0.06 && observations.sensors[6] <= 0.06)
+                {
+                        //Obs to the left. Go to the state machine OBS IN FRONT + RIGHT
+                        *next_state = 3;
+                }
+                break;
+
+        /* ------------------------- STATE MACHINES OBS IN FRONT -----------------------------------------------*/
         case 3:
-                //ALIGN THE ROBOT TO THE OBSTACLE
-                if (observations.sensors[2]<=0.05 && observations.sensors[3]<=0.05 && observations.sensors[4]<=0.05)
-                //if(observations.sensors[5]<=0.05 && observations.sensors[5]>0.03)
+                //Keep the obstacle to the right
+                if(observations.sensors[7] >= 0.09 && observations.sensors[8] >= 0.09 && observations.sensors[3] <= 0.05 && observations.sensors[2] <= 0.05)
                 {
-                        if(observations.sensors[5]<0.03)
-                        {
-                                //Rotate to the left.
-                                // ------------------------------------------------------------------------------- ?
-                                gen_vector.angle = gen_vector.angle + 0.01;
-                                *next_state = 3;
-                        }
-                        else if(observations.sensors[5]>0.05)
-                        {
-                                gen_vector.angle = gen_vector.angle - 0.01;
-                                *next_state = 3;
-                        }
-                        else
-                        {
-                                *next_state = 4;
-                        }
-                }
-                
-                break;
-
-        case 4:
-                //Rodeate the obstacle
-                //if(observations.sensors[2]<=0.05 && observations.sensors[3]<=0.05 && observations.sensors[4]<=0.05)
-                if(observations.sensors[0]>0.06)
-                {
-                        //The robot has passed the obstacle
                         gen_vector = generate_output(STOP,Mag_Advance,max_angle);
-                        printf("The obstacle is in the right");
-                        *next_state = 5;
-                        
+                        printf("STOP");
+                        //*next_state = 4;
                 }
                 else
                 {
-                        //Te robot is to the right of the obstacle.
-                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                        printf("The obstacle is in the right");
-                        *next_state = 4;
+                        gen_vector.angle = gen_vector.angle + 0.05;
+                        *next_state = 3;
                 }
                 break;
-
-        case 5:
-                //Turn to the right (x1)
-                gen_vector = generate_output(RIGHT,Mag_Advance,max_angle);
-                *next_state = 6;
-                break;       
-
-        case 6:
-                //Turn to the right (x2)
-                gen_vector = generate_output(RIGHT,Mag_Advance,max_angle);
-                *next_state = 7;
-                break;   
         
-        case 7:
-                if(observations.sensors[0]>=0.06)
-                {
-                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                        *next_state = 7;
-                }
-                else
-                {
-                        *next_state = 4;
-                }
-                break; 
-        
+        /* ------------------------- STATE MACHINES OBS IN FRONT & TO THE LEFT -------------------------------- */
+        case 4:
+
+                break;
         /* ------------------------- STATE MACHINES OBS IN FRONT & TO THE RIGHT ------------------------------- */
-        
-        /* ------------------------- STATE MACHINES OBS IN FRONT & TO THE LEFT ------------------------------- */
 
 
 }
