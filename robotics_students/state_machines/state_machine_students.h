@@ -264,7 +264,7 @@ switch ( state ){
                 {
                         gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
                         printf("FORWARD");
-                        *next_state = 1;       
+                        *next_state = 0;       
                 }
                 else if(observations.sensors[7] <= 0.06 && observations.sensors[8] <= 0.06 ||
                         observations.sensors[10] <= 0.05 && observations.sensors[11] <= 0.05 ||
@@ -281,6 +281,14 @@ switch ( state ){
 
                         ini_coord = coord_robot; //Keep the coordenates when the robot detect an obsacle
                         *next_state = 2;
+                }
+
+                //If there is an obstacle to the left or right but the robot does not hit it, it ignores it.
+                else
+                {
+                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                        printf("FORWARD");
+                        *next_state = 0;
                 }
                 break;
         
@@ -306,12 +314,12 @@ switch ( state ){
 
         /* ------------------------- STATE MACHINES OBS IN FRONT -----------------------------------------------*/
         case 3:
-                //Keep the obstacle to the right
+                //Keep the obstacle to the right        (front sensors)                 (right sensors)
                 if(observations.sensors[7] >= 0.09 && observations.sensors[8] >= 0.09 && observations.sensors[3] <= 0.05 && observations.sensors[2] <= 0.05)
                 {
                         gen_vector = generate_output(STOP,Mag_Advance,max_angle);
                         printf("STOP");
-                        //*next_state = 4;
+                        *next_state = 4;
                 }
                 else
                 {
@@ -320,13 +328,46 @@ switch ( state ){
                 }
                 break;
         
-        /* ------------------------- STATE MACHINES OBS IN FRONT & TO THE LEFT -------------------------------- */
+        /* ---------------------- STATE MACHINES FOR RODEATE AN OBSTACLE --------------------------------------- */
         case 4:
-
+                //if(observations.sensors[1] <= 0.06 )
+                if(observations.sensors[3]>0.09)
+                {
+                        //TURN TO THE RIGHT
+                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle); //Make 1 step
+                        *next_state = 5;
+                }
+                else
+                {
+                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                        printf("FORWARD");
+                        *next_state = 4;
+                }
                 break;
-        /* ------------------------- STATE MACHINES OBS IN FRONT & TO THE RIGHT ------------------------------- */
+        
+        case 5:
+                gen_vector = generate_output(RIGHT,Mag_Advance,max_angle);
+                printf("RIGHT");
+                *next_state = 6;
+                break;
+        
+        case 6:
+                gen_vector = generate_output(RIGHT,Mag_Advance,max_angle);
+                printf("RIGHT");
+                *next_state = 7;
+                break;
+        
+        case 7:
+                gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                printf("FORWARD");
+                *next_state = 8;
+                break;
 
-
+        case 8:
+                gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                printf("FORWARD");
+                *next_state = 4;
+                break;
 }
  
  return gen_vector;
