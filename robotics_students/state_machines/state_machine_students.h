@@ -209,25 +209,25 @@ AdvanceAngle Bug1_students(Raw observations, int dest, int intensity, int state,
  int value = 0;
 
  //Variables
- static coord ini_coord; //Coordenates when the robot detect an obstacle for the first time
+ static coord hit_coord; //Coordenates when the robot detect an obstacle for the first time
  coord minDistance_coord; //Coordenate when the robot is in the min distance to the light source
 
  printf("\n\n *************************** Student Bug 1 ****************************************************\n");
 
  for(j=0;j<num_sensors/2;j++){
         right_side = observations.sensors[j] + right_side;
-        printf("right side sensor[%d] %f\n",j,observations.sensors[j]);
+        //printf("right side sensor[%d] %f\n",j,observations.sensors[j]);
  }
 
  for(j=num_sensors/2;j<num_sensors;j++){
         left_side = observations.sensors[j] + left_side;
-        printf("left side sensor[%d] %f\n",j,observations.sensors[j]);
+        //printf("left side sensor[%d] %f\n",j,observations.sensors[j]);
  }
 
  right_side = right_side/(num_sensors/2);
  left_side = left_side/(num_sensors/2);
- printf("Average right side %f\n",right_side);
- printf("Average left side %f\n",left_side);
+ //printf("Average right side %f\n",right_side);
+ //printf("Average left side %f\n",left_side);
 
  if( left_side < THRS) value = (value << 1) + 1;
  else value = (value << 1) + 0;
@@ -237,7 +237,7 @@ AdvanceAngle Bug1_students(Raw observations, int dest, int intensity, int state,
 
  obs = value;
 
- printf("intensity %d obstacles %d dest %d\n",intensity,obs,dest);
+ //printf("intensity %d obstacles %d dest %d\n",intensity,obs,dest);
 
 /*      PROGRAM       */
 
@@ -248,13 +248,13 @@ switch ( state ){
                 {
                         //The robot has reached the light source
                         gen_vector = generate_output(STOP,Mag_Advance,max_angle);
-                        printf("STOP");
+                        //printf("STOP");
                         *next_state = 0;
                 }
                 else
                 {
                         gen_vector.angle = angle_light;
-                        printf("The robot is looking at the light source");
+                        printf("\nThe robot is looking at the light source");
                         *next_state = 1;
                 }
                 break;
@@ -263,7 +263,7 @@ switch ( state ){
                 if(obs == 0) //No obstacle
                 {
                         gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                        printf("FORWARD");
+                        printf("\nNo obstacle");
                         *next_state = 0;       
                 }
                 else if(observations.sensors[7] <= 0.06 && observations.sensors[8] <= 0.06 ||
@@ -275,11 +275,17 @@ switch ( state ){
                                 // Choque frontal + derecha (sensores [8,9,10,11,12])
                                 // Choque frontal + izquierda (sensores [4,5,6,7])
                         gen_vector=generate_output(STOP,Mag_Advance,max_angle);
-                        printf("Present State: %d STOP\n", state);
 
                                         /* GUARDA LAS COORDENADAS */
 
-                        ini_coord = coord_robot; //Keep the coordenates when the robot detect an obsacle
+                        //hit_coord = coord_robot; //Keep the coordenates when the robot detect an obsacle --------------------------------------------------------- !
+                        hit_coord.xc = coord_robot.xc;
+                        hit_coord.yc = coord_robot.yc;
+                        hit_coord.anglec = 0.0;
+                        
+                        printf("\n*********** THE ROBOT HIT THE OBSTACLE ***********");
+                        printf("Coord X: %f ; Coord Y: %f",hit_coord.xc,hit_coord.yc);
+
                         *next_state = 2;
                 }
 
@@ -287,7 +293,7 @@ switch ( state ){
                 else
                 {
                         gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                        printf("FORWARD");
+                        printf("\nNo obstacle");
                         *next_state = 0;
                 }
                 break;
@@ -318,7 +324,6 @@ switch ( state ){
                 if(observations.sensors[7] >= 0.09 && observations.sensors[8] >= 0.09 && observations.sensors[3] <= 0.05 && observations.sensors[2] <= 0.05)
                 {
                         gen_vector = generate_output(STOP,Mag_Advance,max_angle);
-                        printf("STOP");
                         *next_state = 4;
                 }
                 else
@@ -330,6 +335,9 @@ switch ( state ){
         
         /* ---------------------- STATE MACHINES FOR RODEATE AN OBSTACLE --------------------------------------- */
         case 4:
+                
+                /* --- CHECK IF THE ROBOT HAS RETURNED TO THE HIT POINT --- */
+                
                 //if(observations.sensors[1] <= 0.06 )
                 if(observations.sensors[3]>0.09)
                 {
@@ -337,39 +345,54 @@ switch ( state ){
                         gen_vector = generate_output(FORWARD,Mag_Advance,max_angle); //Make 1 step
                         *next_state = 5;
                 }
+
                 else
                 {
                         gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                        printf("FORWARD");
-                        *next_state = 4;
+                        *next_state = 9; //Ceck if the robot has returned to the hit point
                 }
                 break;
         
         case 5:
                 gen_vector = generate_output(RIGHT,Mag_Advance,max_angle);
-                printf("RIGHT");
                 *next_state = 6;
                 break;
         
         case 6:
                 gen_vector = generate_output(RIGHT,Mag_Advance,max_angle);
-                printf("RIGHT");
                 *next_state = 7;
                 break;
         
         case 7:
                 gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                printf("FORWARD");
                 *next_state = 8;
                 break;
 
         case 8:
                 gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                printf("FORWARD");
                 *next_state = 4;
                 break;
+
+        case 9:
+               /* if((coord_robot.xc>=hit_coord.xc) && (coord_robot.yc>=hit_coord.yc))
+                {
+                        *next_state = 10;
+                }
+                else
+                {
+                        *next_state = 4;
+                }*/
+                printf("\nTHE ROBOT HAS LEFT THE HIT POINT");
+                printf("\nRobot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
+                printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
+                *next_state = 4;
+                break;
+        
+        case 10:
+                gen_vector = generate_output(STOP,Mag_Advance,max_angle);
+                break;
 }
- 
+
  return gen_vector;
 
 }
