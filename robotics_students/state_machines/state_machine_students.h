@@ -199,7 +199,7 @@ switch ( state ){
 
 //                                 (                                                                                                                                                    Actual position   light source position)
 //type -> coord: xc, yx, angle;
-AdvanceAngle Bug1_students(Raw observations, int dest, int intensity, int state, int *next_state, float Mag_Advance, float max_angle, int num_sensors, float angle_light, coord coord_robot, coord coord_dest){
+AdvanceAngle Bug1_students(Raw observations, int dest, int intensity, int state, int *next_state, float Mag_Advance, float max_angle, int num_sensors, float angle_light, coord coord_robot, coord coord_dest,float distance1){
 
  AdvanceAngle gen_vector;
  int obs;
@@ -208,11 +208,15 @@ AdvanceAngle Bug1_students(Raw observations, int dest, int intensity, int state,
  float right_side=0;
  int value = 0;
 
- bool leftHitPoint = false; //It indicates if the robot has passed the hitpoint :)
+ //Variables distance
+ static float d1 = 0.0;
+ static float d2 = 0.0;
+
+ static bool reachedMinDistance = false; 
 
  //Variables
  static coord hit_coord; //Coordenates when the robot detect an obstacle for the first time
- coord minDistance_coord; //Coordenate when the robot is in the min distance to the light source
+ static coord minDistance_coord; //Coordenate when the robot is in the min distance to the light source
 
  printf("\n\n *************************** Student Bug 1 ****************************************************\n");
 
@@ -322,7 +326,9 @@ switch ( state ){
                 printf("\nRobot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
                 printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
                 gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                //leftHitPoint = true; // ------------------------------------------------------------------------ !
+                
+                //distancia mínima entre el robot y la luz (primera distancia)
+                d1 = distance1;
                 *next_state = 4;
                 break;
 
@@ -351,7 +357,32 @@ switch ( state ){
                         gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
                         printf("\n[2]Robot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
                         printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
-                        *next_state = 4;
+
+                        d2 = distance1;
+                        //compara distancia 1 y 2:
+                        if(!reachedMinDistance) //    ------------------------------------------------------------------------ !
+                        {
+                                if( d2 > d1 )
+                                {
+                                        //The robot has reached the minimum distance
+                                        minDistance_coord.xc = coord_robot.xc;
+                                        minDistance_coord.yc = coord_robot.yc;
+                                        reachedMinDistance = true;
+                                        printf("\nTHE ROBOT HAS REACHED THE MINIMUM DISTANCE");
+                                        printf("\n[3]Robot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
+                                        printf("\nMIN DISTANCE COORD. XC = %f, YC = %f",minDistance_coord.xc,minDistance_coord.yc);
+
+                                        //*next_state = ;
+                                }
+                                else
+                                {
+                                        //Se re-inicializan las variables 
+                                        d1 = d2;
+                                        d2 = 0.0;
+
+                                        *next_state = 4;
+                                }
+                        }
                 }                
                 break;
         
