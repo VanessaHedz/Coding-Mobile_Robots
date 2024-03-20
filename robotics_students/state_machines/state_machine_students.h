@@ -288,7 +288,7 @@ switch ( state ){
                         printf("\n*********** THE ROBOT HIT THE OBSTACLE ***********"); //test_students.dat 
                         printf("Coord X: %f ; Coord Y: %f",hit_coord.xc,hit_coord.yc);
 
-                        *next_state = 3;
+                        *next_state = 2;
                 }
 
                 //If there is an obstacle to the left or right but the robot does not hit it, it ignores it.
@@ -300,67 +300,59 @@ switch ( state ){
                 }
                 break;
         
-        case 2:
-                //CHECK THE CURRENT COORDS OF THE ROBOT AND COMPARES THE HITPOIN
-                //IF THE ROBOT IS NEAR THE HIT POINT, IT STOP.
-                if(leftHitPoint)
-                {
-                        if(( coord_robot.xc>=(hit_coord.xc - 0.02) && coord_robot.xc<=(hit_coord.xc + 0.02) ) && 
-                           ( coord_robot.yc>=(hit_coord.yc - 0.02) && coord_robot.yc<=(hit_coord.yc + 0.02) ))
-                           {
-                                //The robot is in the peripherials of the hitpoint :D
-                                gen_vector = generate_output(STOP,Mag_Advance,max_angle);
-                                printf("\n ************************ THE ROBOT HAS RETURNED **************************");
-                                //*next_state = 10;
-                           }
-                        else if(observations.sensors[3]>0.09)
-                        {
-                                //The robot passed the obstacle
-                               *next_state = 4; 
-                        }
-                }
-                else
-                {
-                        *next_state = 3;
-                }
-                break;
 
         /* ------------------------- STATE MACHINES OBS IN FRONT -----------------------------------------------*/
-        case 3:
+        case 2:
                 //Keep the obstacle to the right        (front sensors)                 (right sensors)
                 if(observations.sensors[7] >= 0.09 && observations.sensors[8] >= 0.09 && observations.sensors[3] <= 0.05 && observations.sensors[2] <= 0.05)
                 {
                         gen_vector = generate_output(STOP,Mag_Advance,max_angle);
-                        *next_state = 4;
+                        *next_state = 3; //Go FORWARD
                 }
                 else
                 {
                         gen_vector.angle = gen_vector.angle + 0.05;
                         printf("\n\n ************************************ ROTATING ************************************");
-                        *next_state = 3;
+                        *next_state = 2;
                 }
                 break;
         
+        case 3:
+                printf("\nTHE ROBOT HAS LEFT THE HIT POINT");
+                printf("\nRobot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
+                printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
+                gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                //leftHitPoint = true; // ------------------------------------------------------------------------ !
+                *next_state = 4;
+                break;
+
+
+        
         /* ---------------------- STATE MACHINES FOR RODEATE AN OBSTACLE --------------------------------------- */
         case 4:
-                
-                /* --- CHECK IF THE ROBOT HAS RETURNED TO THE HIT POINT --- */
-                
-                //if(observations.sensors[1] <= 0.06 )
-                if(observations.sensors[3]>0.09)
+                if(( coord_robot.xc>=(hit_coord.xc - 0.03) && coord_robot.xc<=(hit_coord.xc + 0.03) ) && 
+                   ( coord_robot.yc>=(hit_coord.yc - 0.03) && coord_robot.yc<=(hit_coord.yc + 0.03) ))
+                {
+                                //The robot is in the peripherials of the hitpoint :D
+                        gen_vector = generate_output(STOP,Mag_Advance,max_angle);
+                        printf("\n ************************ THE ROBOT HAS RETURNED **************************");
+                        *next_state = 9;
+                }
+                else if(observations.sensors[3]>0.09)
                 {
                         //TURN TO THE RIGHT
                         gen_vector = generate_output(FORWARD,Mag_Advance,max_angle); //Make 1 step
-                        leftHitPoint = true; //--------------------------------------------------------- THE ROBOT HAS LEFT THE HIT-POINT
+                        printf("\n[1]Robot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
+                        printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
                         *next_state = 5;
                 }
-
                 else
                 {
                         gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                        *next_state = 2;
-                        //*next_state = 9; //Ceck if the robot has returned to the hit point
-                }
+                        printf("\n[2]Robot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
+                        printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
+                        *next_state = 4;
+                }                
                 break;
         
         case 5:
@@ -375,7 +367,7 @@ switch ( state ){
         
         case 7:
                 gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
-                *next_state = 8;
+                *next_state = 4;
                 break;
 
         case 8:
@@ -384,22 +376,6 @@ switch ( state ){
                 break;
 
         case 9:
-               /* if((coord_robot.xc>=hit_coord.xc) && (coord_robot.yc>=hit_coord.yc))
-                {
-                        *next_state = 10;
-                }
-                else
-                {
-                        *next_state = 4;
-                }*/
-                printf("\nTHE ROBOT HAS LEFT THE HIT POINT");
-                printf("\nRobot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
-                printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
-                leftHitPoint = true; // ------------------------------------------------------------------------ !
-                *next_state = 4;
-                break;
-        
-        case 10:
                 gen_vector = generate_output(STOP,Mag_Advance,max_angle);
                 break;
 }
