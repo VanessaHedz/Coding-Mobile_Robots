@@ -199,7 +199,7 @@ switch ( state ){
 
 //                                 (                                                                                                                                                    Actual position   light source position)
 //type -> coord: xc, yx, angle;
-AdvanceAngle Bug1_students(Raw observations, int dest, int intensity, int state, int *next_state, float Mag_Advance, float max_angle, int num_sensors, float angle_light, coord coord_robot, coord coord_dest,float distance1){
+AdvanceAngle Bug1_students(Raw observations, int dest, int intensity, int state, int *next_state, float Mag_Advance, float max_angle, int num_sensors, float angle_light, coord coord_robot, coord coord_dest, float distance1){
 
  AdvanceAngle gen_vector;
  int obs;
@@ -208,18 +208,18 @@ AdvanceAngle Bug1_students(Raw observations, int dest, int intensity, int state,
  float right_side=0;
  int value = 0;
 
- //Variables distance
- static float d1 = 0.0;
- static float d2 = 0.0;
- static float min_dist = 0.0;
+ bool leftHitPoint = false; //It indicates if the robot has passed the hitpoint :)
 
- static bool reachedMinDistance = false; 
-
- //Variables
+ //Variables COORD
  static coord hit_coord; //Coordenates when the robot detect an obstacle for the first time
+ static coord p1;
+ static coord p2;
  static coord minDistance_coord; //Coordenate when the robot is in the min distance to the light source
- static coord coord1;
- static coord coord2;
+
+ //Variables FLOAT
+ static float d1;
+ static float d2;
+ static float min_distance;
 
  printf("\n\n *************************** Student Bug 1 ****************************************************\n");
 
@@ -330,26 +330,28 @@ switch ( state ){
                 printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
                 gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
                 
-                //distancia mínima entre el robot y la luz (primera distancia)
-                d1 = distance1;
-                coord1.xc = coord_robot.xc;
-                coord1.yc = coord_robot.yc;
+                //P1, D1
+                d1=distance1;
+                p1.xc = coord_robot.xc;
+                p1.yc = coord_robot.yc;
 
+                min_distance = 0.0;
+                
                 *next_state = 4;
                 break;
-
-
         
-        /* ---------------------- STATE MACHINES FOR RODEATE AN OBSTACLE --------------------------------------- */
         case 4:
+                //THE ROBOT HAS RETURNED?
                 if(( coord_robot.xc>=(hit_coord.xc - 0.03) && coord_robot.xc<=(hit_coord.xc + 0.03) ) && 
                    ( coord_robot.yc>=(hit_coord.yc - 0.03) && coord_robot.yc<=(hit_coord.yc + 0.03) ))
                 {
-                                //The robot is in the peripherials of the hitpoint :D
+                        //The robot is in the peripherials of the hitpoint :D
                         gen_vector = generate_output(STOP,Mag_Advance,max_angle);
                         printf("\n ************************ THE ROBOT HAS RETURNED **************************");
-                        *next_state = 8;
+                        *next_state = 9;
                 }
+
+                //THE ROBOT IS IN A CORNER?
                 else if(observations.sensors[3]>0.09)
                 {
                         //TURN TO THE RIGHT
@@ -358,69 +360,75 @@ switch ( state ){
                         printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
                         *next_state = 5;
                 }
+
+                //THE ROBOT KEEPS MOVING FORWARD
                 else
                 {
                         gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
                         printf("\n[2]Robot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
                         printf("\nHIT POINTS. XC = %f, YC = %f",hit_coord.xc,hit_coord.yc);
 
-                        d2 = distance1;
-                        coord2.xc = coord_robot.xc;
-                        coord2.yc = coord_robot.yc;
+                        //CALC. OF THE MIN DISTANCE
+                        d2=distance1;
+                        p2.xc = coord_robot.xc;
+                        p2.yc = coord_robot.yc;
 
-                        if(d1 < d2)
+                        if( d2 > d1 )
                         {
-                                min_dist = d1;
-                                minDistance_coord.xc = coord1.xc;
-                                minDistance_coord.yc = coord1.yc;
+                                // YA HAY UNA DISTANCIA MÍNIMA !!
+                                if( min_distance != 0 )
+                                {
+                                        if( d1 < min_distance)
+                                        {
+                                                //Se encontró una nueva distancia mínima.
+                                                //Se guarda esta coordenada en su lugar.
 
-                                printf("\nMIN DIST IN ( %f , %f )",minDistance_coord.xc,minDistance_coord.yc);
-                                printf("\nd1 = %f, COORD 1 ( %f , %f )",d1,coord1.xc,coord1.yc);
-                                printf("\nd2 = %f, COORD 2 ( %f , %f )",d2,coord2.xc,coord2.yc);
+                                                min_distance = d1;
+                                                minDistance_coord.xc = p1.xc;
+                                                minDistance_coord.yc = p1.yc;
+
+                                                printf("\nNUEVA DISTANCIA MÍNIMA !!! ");
+                                                printf("\n MIN DIST COORD: ( %f , %f )",minDistance_coord.xc,minDistance_coord.yc);
+
+                                                d1 = d2;
+                                                p1.xc = p2.xc;
+                                                p1.yc = p2.yc;
+                                        }
+                                        else
+                                        {
+                                                d1 = d2;
+                                                p1.xc = p2.xc;
+                                                p1.yc = p2.yc;
+                                        }
+                                }
+                                
+                                //No hay una distancia mínima aún.
+                                //Guardamos estas coordenadas.
+                                else
+                                {                                        
+                                        min_distance = d1;
+                                        minDistance_coord.xc = p1.xc;
+                                        minDistance_coord.yc = p1.yc;
+
+                                        printf("\nPRIMER DISTANCIA MÍNIMA !!! ");
+                                        printf("\n MIN DIST COORD: ( %f , %f )",minDistance_coord.xc,minDistance_coord.yc);
+
+                                        d1 = d2;
+                                        p1.xc = p2.xc;
+                                        p1.yc = p2.yc;  
+                                }
                         }
                         else
                         {
                                 d1 = d2;
-                                coord1.xc = coord2.xc;
-                                coord1.yc = coord2.yc;
+                                p1.xc = p2.xc;
+                                p1.yc = p2.yc;  
 
-                                /*d2 = 0.0;
-                                coord2.xc = 0.0;
-                                coord2.yc = 0.0;*/
-
-                                printf("\nd1 = %f, COORD 1 ( %f , %f )",d1,coord1.xc,coord1.yc);
-                                printf("\nd2 = %f, COORD 2 ( %f , %f )",d2,coord2.xc,coord2.yc);
                         }
 
                         *next_state = 4;
-                        /*
-                        d2 = distance1;
-                        //compara distancia 1 y 2:
-                        if(!reachedMinDistance) //    ------------------------------------------------------------------------ !
-                        {
-                                if( d2 > d1 )
-                                {
-                                        //The robot has reached the minimum distance
-                                        minDistance_coord.xc = coord_robot.xc;
-                                        minDistance_coord.yc = coord_robot.yc;
-                                        reachedMinDistance = true;
-                                        printf("\nTHE ROBOT HAS REACHED THE MINIMUM DISTANCE");
-                                        printf("\n[3]Robot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
-                                        printf("\nMIN DISTANCE COORD. XC = %f, YC = %f",minDistance_coord.xc,minDistance_coord.yc);
+                }
 
-                                        //*next_state = ;
-                                }
-                                else
-                                {
-                                        //Se re-inicializan las variables 
-                                        d1 = d2;
-                                        d2 = 0.0;
-
-                                        *next_state = 4;
-                                }
-                        }
-                        */
-                }                
                 break;
         
         case 5:
@@ -438,7 +446,7 @@ switch ( state ){
                 *next_state = 4;
                 break;
 
-        case 8:
+        case 9:
                 gen_vector = generate_output(STOP,Mag_Advance,max_angle);
                 break;
 }
