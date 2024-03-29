@@ -348,7 +348,7 @@ switch ( state ){
                         //The robot is in the peripherials of the hitpoint :D
                         gen_vector = generate_output(STOP,Mag_Advance,max_angle);
                         printf("\n ************************ THE ROBOT HAS RETURNED **************************");
-                        *next_state = 9;
+                        *next_state = 8;
                 }
 
                 //THE ROBOT IS IN A CORNER?
@@ -446,9 +446,73 @@ switch ( state ){
                 *next_state = 4;
                 break;
 
-        case 9:
+        case 8:
+                //The robot has returned to the hit point.
+                //Now it must go to the minimum distance coord
                 gen_vector = generate_output(STOP,Mag_Advance,max_angle);
+                *next_state = 9;
                 break;
+        case 9:
+                if(( coord_robot.xc>=(minDistance_coord.xc - 0.03) && coord_robot.xc<=(minDistance_coord.xc + 0.03) ) && 
+                   ( coord_robot.yc>=(minDistance_coord.yc - 0.03) && coord_robot.yc<=(minDistance_coord.yc + 0.03) ))
+                {
+                        //The robot is in the peripherials of the hitpoint :D
+                        gen_vector = generate_output(STOP,Mag_Advance,max_angle);
+                        printf("\n ************************ THE ROBOT HAS REACHED THE MINIMUM DISTANCE POINT **************************");
+                        *next_state = 13;
+                }
+
+                //THE ROBOT IS IN A CORNER?
+                else if(observations.sensors[3]>0.09)
+                {
+                        //TURN TO THE RIGHT
+                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle); //Make 1 step
+                        printf("\n[1]Robot coords. XC = %f, YC = %f",coord_robot.xc,coord_robot.yc);
+                        printf("\nMIN DISTANCE COORD. XC = %f, YC = %f",minDistance_coord.xc,minDistance_coord.yc);
+                        *next_state = 10;
+                }
+                else
+                {
+                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                        *next_state = 9;
+                }
+                break;
+        
+        case 10:
+                gen_vector = generate_output(RIGHT,Mag_Advance,max_angle);
+                *next_state = 11;
+                break;
+        
+        case 11:
+                gen_vector = generate_output(RIGHT,Mag_Advance,max_angle);
+                *next_state = 12;
+                break;
+        
+        case 12:
+                gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                *next_state = 9;
+                break;
+
+        case 13:
+                gen_vector.angle = angle_light;
+                printf("\nThe robot is looking at the light source");
+                *next_state = 14;
+                break;
+        
+        case 14:
+                if(intensity == 1 )
+                {
+                        gen_vector = generate_output(STOP,Mag_Advance,max_angle);
+                        *next_state = 0;
+                }
+                else
+                {
+                        gen_vector = generate_output(FORWARD,Mag_Advance,max_angle);
+                        *next_state = 14;
+                }
+                break;
+        
+        
 }
 
  return gen_vector;
