@@ -112,13 +112,10 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
  static coord q_dest;
  static coord q_obs;
 
- q_obs.xc = 0.0;
- q_obs.yc = 0.0;
-
- static float e1 = 0.1;
- static float n = 0.1;
- static float d0 = 5;
- static float delt_0 = 0.1;
+ static float e1 = 3; //Para el campo de atracción
+ static float n = 1; //Para el campo de repulsión
+ static float d0 = 5; //Permanece fijo 
+ static float delt_0 = 0.1; //Magnitud de avance en el simulador
 
  //Calculate the advance and the angle to move the robot
  static float d1;
