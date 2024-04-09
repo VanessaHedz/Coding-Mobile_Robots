@@ -23,7 +23,10 @@ coord sum_vectors(coord vector1,coord vector2){
 
     sum.xc=vector1.xc + vector2.xc;
     sum.yc=vector1.yc + vector2.yc;
-    return(sum);}
+
+    return(sum);
+    
+    }
 
     //Multiplicación por un escalar
 coord multiply_vector_scalar(coord vector1,float cnt){
@@ -73,17 +76,18 @@ coord puntosRobot(coord q_0, coord q_dest, coord q_obs, float e1, float d0, floa
     resta1 = dif_vectors(q_0,q_obs);
 
     //Escalar auxiliar
-    escAux = -n * (1 / magnitudVector(dif_vectors(q_0,q_obs))) -(1 / d0) * (1 / ( magnitudVector(dif_vectors(q_0,q_obs)) * magnitudVector(dif_vectors(q_0,q_obs)) ) );
+    escAux = -n * ((1 / magnitudVector(dif_vectors(q_0,q_obs))) -(1 / d0)) * (1 / ( magnitudVector(dif_vectors(q_0,q_obs)) * magnitudVector(dif_vectors(q_0,q_obs)) ) );
 
     //Fuerza de repulsión (?)
-    Drep = multiply_vector_scalar(vetorNormalized(resta1),escAux);
+    Drep = multiply_vector_scalar(vetorNormalized(dif_vectors(q_0,q_obs)),escAux);
 
     //Fuerza:
     F = sum_vectors(Fatr,Drep);
     f=vetorNormalized(F);
     q = dif_vectors(q_0,multiply_vector_scalar(f,delt_0));
 
-    return q;}
+    return q;
+    }
 
 
 /* ---------------------------------------------------------- POTENTIAL FIELDS ---------------------------------------------------------------------*/
@@ -227,14 +231,16 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
         q_obs.yc = averageSensors * sin(averageAngles);
 
         //PUNTO SIGUIENTE 
-        p2 = puntosRobot(p1, q_dest, q_obs, e1, d0, n, delt_0);
+        //p2 = puntosRobot(p1, q_dest, q_obs, e1, d0, n, delt_0);
+        p2 = puntosRobot(p1, q_dest, q_obs, 0.3, 0.3, 0.3, 0.3);
 
         printf("\nCOORD. ACTUAL: ( %f , %f )", p1.xc, p1.yc);
         printf("\nCOORD. DEST: ( %f , %f )", q_dest.xc, q_dest.yc);
         printf("\nCOORD. OBS: ( %f , %f )", q_obs.xc, q_obs.yc);
         printf("\nCOORD. SIGUIENTE: ( %f , %f )", p2.xc, p2.yc);
 
-        d1 = sqrt((p2.xc - p1.xc)*(p2.xc - p1.xc) + (p2.yc - p1.yc)*(p2.yc - p1.yc));
+        //d1 = sqrt((p2.xc - p1.xc)*(p2.xc - p1.xc) + (p2.yc - p1.yc)*(p2.yc - p1.yc));
+        d1 = magnitudVector(dif_vectors(p2,p1));
         theta = asin((p2.yc - p1.yc) / d1);
 
         //Move the robot to the p2 calculated
