@@ -97,9 +97,20 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
  int value = 0;
  static int step=0;
 
+ std::list<int> Obs_Sensors;
+
+ float sumaObsSensors = 0.0;
+ float averageSensors = 0.0;
+ float sumaAngles = 0.0;
+ float averageAngles = 0.0;
+
+
  //Variables:
  static coord p1;   
  static coord p2;   
+
+ static coord newPoint;
+
  //Calculate the next point
  static coord q_0;
  static coord q_dest;
@@ -165,12 +176,63 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
     
     case 1:
 
+        //PUNTO DESTINO 
+        q_dest.xc = coord_dest.xc;
+        q_dest.yc = coord_dest.yc;
+
         //PUNTO ACTUAL
         p1.xc = coord_robot.xc;
         p1.yc = coord_robot.yc;
 
+        // Se obtienen los valores de todos los sensores:
+        for(int i = 0; i < 16; i++) { // Asegúrate de que el índice i vaya hasta 15 inclusive
+            if(observations.sensors[i] != 0.1) {
+                Obs_Sensors.push_back(observations.sensors[i]); 
+
+                if(i>=8)
+                {
+                    //16.87/2 es el ángulo que hay entre el frente del sensor y el sensor 8.
+                    //16.87 es el ángulo que hay entre sensores.
+                    //Fórmula para obtener el ángulo del frente del sensor hacia los sensores del lado izquierdo.
+                    sumaAngles = sumaAngles + 16.87/2 + (i-8)*16.87;
+                }
+                else if(i<=7)
+                {
+                    //16.87/2 es el ángulo que hay entre el frente del sensor y el sensor 8.
+                    //16.87 es el ángulo que hay entre sensores.
+                    //Fórmula para obtener el ángulo del frente del sensor hacia los sensores del lado derecho (de este lado los ángulos son negativos).
+                    sumaAngles = sumaAngles - 16.87/2 - (7-i)*16.87; 
+                }
+
+            }
+        }
+
+        // Se obtiene un promedio de los sensores que detectaron un obstáculo
+        /*for(int i = 0; i < Obs_Sensors.size(); i++) { 
+            sumaObsSensors = sumaObsSensors + Obs_Sensors[i];
+        }*/
+
+        //No permite la forma anterior, así que la sustituimos por esta: 
+        //*it es un apuntador que recorre toda la lista de Obs_sensors y con él podemos hacer la suma de los sensores.
+        for(auto it = Obs_Sensors.begin(); it != Obs_Sensors.end(); ++it) {
+            sumaObsSensors = sumaObsSensors + *it;
+        }
+
+        //Promedio de los sensores
+        averageSensors = sumaObsSensors / Obs_Sensors.size(); //Promedio de la distancia entre el robot y el obstáculo
+        averageAngles = sumaAngles / Obs_Sensors.size(); //Promedio de los ángulos de los sensores
+
+        //Coordenada del obstáculo:
+        q_obs.xc = averageSensors * cos(averageAngles);
+        q_obs.yc = averageSensors * sin(averageAngles);
+
         //PUNTO SIGUIENTE 
-        p2 = puntosRobot(q_0, q_dest, q_obs, e1, d0, n, delt_0);
+        p2 = puntosRobot(p1, q_dest, q_obs, e1, d0, n, delt_0);
+
+        printf("\nCOORD. ACTUAL: ( %f , %f )", p1.xc, p1.yc);
+        printf("\nCOORD. DEST: ( %f , %f )", q_dest.xc, q_dest.yc);
+        printf("\nCOORD. OBS: ( %f , %f )", q_obs.xc, q_obs.yc);
+        printf("\nCOORD. SIGUIENTE: ( %f , %f )", p2.xc, p2.yc);
 
         d1 = sqrt((p2.xc - p1.xc)*(p2.xc - p1.xc) + (p2.yc - p1.yc)*(p2.yc - p1.yc));
         theta = asin((p2.yc - p1.yc) / d1);
