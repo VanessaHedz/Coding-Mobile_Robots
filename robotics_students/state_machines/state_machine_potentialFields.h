@@ -61,7 +61,8 @@ coord vetorNormalized(coord punto){
     return result;}
 
 // Cálculo de 1 punto mediante campos potenciales
-coord puntosRobot(coord q_0, coord q_dest, coord q_obs, float e1, float d0, float n, float delt_0){
+coord puntosRobot_UnObs(coord q_0, coord q_dest, coord q_obs, float e1, float d0, float n, float delt_0){
+//coord puntosRobot(coord q_0, coord q_dest, coord q_obs1, coord q_obs2, float e1, float d0, float n, float delt_0){
     coord Fatr;
     coord Drep;
     coord resta1;
@@ -80,6 +81,53 @@ coord puntosRobot(coord q_0, coord q_dest, coord q_obs, float e1, float d0, floa
 
     //Fuerza de repulsión (?)
     Drep = multiply_vector_scalar(vetorNormalized(dif_vectors(q_0,q_obs)),escAux);
+
+    //Editarlo para que lea 2 obstáculos:
+    //obs1 = multiply_vector_scalar(vetorNormalized(dif_vectors(q_0,q_obs1)),escAux);
+    //obs2 = multiply_vector_scalar(vetorNormalized(dif_vectors(q_0,q_obs2)),escAux);
+    //Drep = obs1 + obs2;
+
+    //Fuerza:
+    F = sum_vectors(Fatr,Drep);
+    f=vetorNormalized(F);
+    q = dif_vectors(q_0,multiply_vector_scalar(f,delt_0));
+
+    return q;
+    }
+
+coord puntosRobot_TresObs(coord q_0, coord q_dest, coord q_obs1, coord q_obs2, coord q_obs3, float e1, float d0, float n, float delt_0){
+    coord Fatr;
+    coord Drep;
+    //coord resta1;
+    coord F;
+    coord f;
+    coord q; //Punto calculado
+
+    coord obs1;
+    coord obs2;
+    coord obs3;
+
+    float escAux1;
+    float escAux2;
+    float escAux3;
+
+    //Fuerza de atracción
+    Fatr = multiply_vector_scalar(dif_vectors(q_0,q_dest),e1);
+    //resta1 = dif_vectors(q_0,q_obs);
+
+    //Escalar auxiliar
+    escAux1 = -n * ((1 / magnitudVector(dif_vectors(q_0,q_obs1))) -(1 / d0)) * (1 / ( magnitudVector(dif_vectors(q_0,q_obs1)) * magnitudVector(dif_vectors(q_0,q_obs1)) ) );
+    escAux2 = -n * ((1 / magnitudVector(dif_vectors(q_0,q_obs2))) -(1 / d0)) * (1 / ( magnitudVector(dif_vectors(q_0,q_obs2)) * magnitudVector(dif_vectors(q_0,q_obs2)) ) );
+    escAux3 = -n * ((1 / magnitudVector(dif_vectors(q_0,q_obs3))) -(1 / d0)) * (1 / ( magnitudVector(dif_vectors(q_0,q_obs3)) * magnitudVector(dif_vectors(q_0,q_obs3)) ) );
+
+    //Fuerza de repulsión (?)
+    //Editarlo para que lea 2 obstáculos:
+    obs1 = multiply_vector_scalar(vetorNormalized(dif_vectors(q_0,q_obs1)),escAux1);
+    obs2 = multiply_vector_scalar(vetorNormalized(dif_vectors(q_0,q_obs2)),escAux2);
+    obs3 = multiply_vector_scalar(vetorNormalized(dif_vectors(q_0,q_obs2)),escAux3);
+    
+    Drep = sum_vectors(sum_vectors(obs1,obs2),obs3);
+    //Drep = obs1 + obs2 + obs3;
 
     //Fuerza:
     F = sum_vectors(Fatr,Drep);
@@ -110,7 +158,17 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
  //Calculate the next point
  static coord q_0;
  static coord q_dest;
- static coord q_obs;
+ static coord q_obs1;
+ static coord q_obs2;
+ static coord q_obs3;
+
+ static float ang_obs1 = -0.7853; //[ rad ]     //Estos se deben definir en el inicio. Los obtengo desde el GUI
+ static float ang_obs2 = 0;         //Es un rango de 45grados
+ static float ang_obs3 = 0.7853;
+
+ static float d_obs1;
+ static float d_obs2;
+ static float d_obs3;
 
  static float e1 = 3; //Para el campo de atracción
  static float n = 1; //Para el campo de repulsión
@@ -171,13 +229,6 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
         break;
     
     case 1:
-        //Variables locales:
-        static int count = 0;
-        static float sumaObsSensors = 0.0;
-        static float averageSensors = 0.0;
-        static float sumaAngles = 0.0;
-        static float averageAngles = 0.0;
-
         //PUNTO DESTINO 
         q_dest.xc = coord_dest.xc;
         q_dest.yc = coord_dest.yc;
@@ -186,43 +237,29 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
         p1.xc = coord_robot.xc;
         p1.yc = coord_robot.yc;
 
-        // Se obtienen los valores de todos los sensores:
-        for(int i = 0; i < 16; i++) { // Asegúrate de que el índice i vaya hasta 15 inclusive
-            if(observations.sensors[i] != 0.1) {
-                averageSensors = averageSensors + observations.sensors[i];
-                if(i>=8)
-                {
-                    //16.87/2 es el ángulo que hay entre el frente del sensor y el sensor 8.
-                    //16.87 es el ángulo que hay entre sensores.
-                    //Fórmula para obtener el ángulo del frente del sensor hacia los sensores del lado izquierdo.
-                    sumaAngles = sumaAngles + 16.87/2 + (i-8)*16.87;
-                }
-                else if(i<=7)
-                {
-                    //16.87/2 es el ángulo que hay entre el frente del sensor y el sensor 8.
-                    //16.87 es el ángulo que hay entre sensores.
-                    //Fórmula para obtener el ángulo del frente del sensor hacia los sensores del lado derecho (de este lado los ángulos son negativos).
-                    sumaAngles = sumaAngles - 16.87/2 - (7-i)*16.87; 
-                }
-                count++;
-            }
-        }
 
-        //Promedio de los sensores
-        averageSensors = sumaObsSensors / count; //Promedio de la distancia entre el robot y el obstáculo
-        averageAngles = sumaAngles / count; //Promedio de los ángulos de los sensores
+        //Detectar q_obs1 y q_obs2
+        d_obs1 = observations.sensors[0];
+        d_obs2 = observations.sensors[1];
+        d_obs2 = observations.sensors[3];
 
-        //Coordenada del obstáculo:
-        q_obs.xc = averageSensors * cos(averageAngles);
-        q_obs.yc = averageSensors * sin(averageAngles);
+        q_obs1.xc = d_obs1 * cos(ang_obs1);
+        q_obs1.yc = d_obs1 * sin(ang_obs1);
 
-        //PUNTO SIGUIENTE 
-        p2 = puntosRobot(p1, q_dest, q_obs, e1, d0, n, delt_0);
-        //p2 = puntosRobot(p1, q_dest, q_obs, 0.3, 0.3, 0.3, 0.3);
+        q_obs2.xc = d_obs2 * cos(ang_obs2);
+        q_obs2.yc = d_obs2 * sin(ang_obs2);
+
+        q_obs3.xc = d_obs3 * cos(ang_obs3);
+        q_obs3.yc = d_obs3 * sin(ang_obs3);
+
+        //p2 = puntosRobot_TresObs(p1, q_dest, q_obs1,q_obs2,q_obs3, e1,   d0,  n, delt_0);
+        p2 = puntosRobot_TresObs(p1, q_dest, q_obs1, q_obs2, q_obs3, 3.0, 1.0, 1.0, 0.1);
 
         printf("\nCOORD. ACTUAL: ( %f , %f )", p1.xc, p1.yc);
         printf("\nCOORD. DEST: ( %f , %f )", q_dest.xc, q_dest.yc);
-        printf("\nCOORD. OBS: ( %f , %f )", q_obs.xc, q_obs.yc);
+        printf("\nCOORD. OBS 1: ( %f , %f )", q_obs1.xc, q_obs1.yc);
+        printf("\nCOORD. OBS 2: ( %f , %f )", q_obs2.xc, q_obs2.yc);
+        printf("\nCOORD. OBS 3: ( %f , %f )", q_obs3.xc, q_obs3.yc);
         printf("\nCOORD. SIGUIENTE: ( %f , %f )", p2.xc, p2.yc);
 
         //d1 = sqrt((p2.xc - p1.xc)*(p2.xc - p1.xc) + (p2.yc - p1.yc)*(p2.yc - p1.yc));
@@ -241,4 +278,3 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
  return gen_vector;
 
 }
-
