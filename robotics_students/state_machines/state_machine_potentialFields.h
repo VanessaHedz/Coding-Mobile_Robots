@@ -113,6 +113,7 @@ coord puntosRobot_TresObs(coord q_0, coord q_dest, coord q_obs1, coord q_obs2, c
 
     //Fuerza de atracción
     Fatr = multiply_vector_scalar(dif_vectors(q_0,q_dest),e1);
+    
     //resta1 = dif_vectors(q_0,q_obs);
 
     //Escalar auxiliar
@@ -252,8 +253,10 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
         q_obs3.xc = d_obs3 * cos(ang_obs3);
         q_obs3.yc = d_obs3 * sin(ang_obs3);
 
+        
+        
         //p2 = puntosRobot_TresObs(p1, q_dest, q_obs1,q_obs2,q_obs3, e1,   d0,  n, delt_0);
-        p2 = puntosRobot_TresObs(p1, q_dest, q_obs1, q_obs2, q_obs3, 3.0, 1.0, 1.0, 0.1);
+        p2 = puntosRobot_TresObs(p1, q_dest, q_obs1, q_obs2, q_obs3, 3.0, 5.0, 1.0, 0.04);
 
         printf("\nCOORD. ACTUAL: ( %f , %f )", p1.xc, p1.yc);
         printf("\nCOORD. DEST: ( %f , %f )", q_dest.xc, q_dest.yc);
@@ -278,3 +281,4 @@ AdvanceAngle potential_fields(Raw observations, int dest, int intensity, int sta
  return gen_vector;
 
 }
+
