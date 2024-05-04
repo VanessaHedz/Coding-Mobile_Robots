@@ -25,7 +25,7 @@ if len (sys.argv) < 2 :
     print "5 = Student behavior 1"
     print "6 = Student behavior 2"
     print "7 = First Search / Dijkstra Algorithms"
-    print "8 = Other Algorithms\n"
+    print "8 = Minimos Cuadrados\n"
     print "Example:"
     print "python GUI_robotics_students.py 3"
     print "\n**********************************************************************************************************"
@@ -62,7 +62,7 @@ elif num_behavior == 7:
         print "*                First Search / Dijkstra Algorithms          						*"
 elif num_behavior == 8:
         num_bh = 8
-        print "*                Other Algorithms\n		          						*"
+        print "*                Minimos Cuadrados\n		          						*"
 else:
 	print "Behavior does not exist"
 	print "Usage: python GUI_robotics_students.py num_behavior"
@@ -74,7 +74,7 @@ else:
     	print "5 = Student behavior 1"
     	print "6 = Student behavior 2"
     	print "7 = First Search / Dijkstra Algorithms"
-    	print "8 = Other Algorithms\n"
+    	print "8 = Minimos Cuadrados\n"
     	print "Example:"
     	print "python GUI_robotics_students.py 3"
 	print "**********************************************************************************************************\n" 
