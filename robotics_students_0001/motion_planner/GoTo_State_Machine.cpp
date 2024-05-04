@@ -58,6 +58,9 @@
 #include "../state_machines/dijkstra.h"
 #include "../state_machines/state_machine_student.h"
 
+// Vanessa's files 
+#include "../state_machines/state_machine_minimosCuadrados.h"
+
 
 //Global variables
 float K_GOAL=CNT_GOAL*MAG_ADVANCE;
