@@ -42,6 +42,8 @@
 #include <time.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <list> 			//	<------------------- Lists
+#include <vector>			//  <------------------- Vectors
 
 // Robotics include files
 #include "../utilities/constants.h"
@@ -429,16 +431,14 @@ int go_to(Inputs inputs)
 
 	else if(selection == 8){
 
-		    DistTheta.angle=0.0;
-		    DistTheta.distance=0.0;
-
+		    printf("Algoritmo de Mínimos Cuadrados");
+			DistTheta = minimosCuadrados(observations, quantized_attraction, quantized_intensity,state,&next_state,inputs.Mag_Advance,inputs.max_angle,coord_robot);
         }
 
-
-        else {
-                printf("This behavior does not exist \n");
-                exit(0);
-        }
+    else {
+            printf("This behavior does not exist \n");
+            exit(0);
+    }
 
 
 
