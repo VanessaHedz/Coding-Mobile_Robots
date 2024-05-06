@@ -46,7 +46,7 @@ AdvanceAngle minimosCuadrados(Raw observations, int dest, int intensity, int sta
         break;
     
     case 1:
-        if(i=500)
+        if(i=500) //Duplicar el valor
         {
             //STOP the count 
             *next_state = 3;
@@ -55,12 +55,13 @@ AdvanceAngle minimosCuadrados(Raw observations, int dest, int intensity, int sta
 
         //Save the value of the 9th sensor in the list
         X.push_back(observations.sensors[9]);
+        printf("\n SAVING VALUE...");
         *next_state = 2;
         break;
     
     case 2:
         i++;
-        *next_state = 1;
+        *next_state = 1; 
         break;
     
     case 3:
