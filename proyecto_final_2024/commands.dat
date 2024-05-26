@@ -1,1 +1,29 @@
+OPERATOR go to corridor 0.6,1.0
+OPERATOR find D 
+OPERATOR grasp D 
+OPERATOR go to corridor 0.6,1.0
+OPERATOR release D 
+OPERATOR find E 
+OPERATOR grasp E 
+OPERATOR go to bedroom 1.0,0.55
+OPERATOR release E 
+OPERATOR go to corridor 0.6,1.0
+OPERATOR find F 
+OPERATOR grasp F 
+OPERATOR go to studio 0.25,1.45
+OPERATOR release F 
+OPERATOR find A 
+OPERATOR grasp A 
+OPERATOR go to service 1.65,0.55
+OPERATOR release A 
+OPERATOR go to studio 0.25,1.45
+OPERATOR find B 
+OPERATOR grasp B 
+OPERATOR go to kitchen 1.6,1.4
+OPERATOR release B 
+OPERATOR go to studio 0.25,1.45
+OPERATOR find C 
+OPERATOR grasp C 
+OPERATOR go to deposit 0.7,1.51
+OPERATOR release C 
 finish planner

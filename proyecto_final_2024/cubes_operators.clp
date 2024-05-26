@@ -36,7 +36,7 @@
 	(on-top-of (upper F)(lower floor))
 	;(goal (move C)(on-top-of E))
 	;(goal (move F)(on-top-of C))
-	(actualRoom (room corridor))
+	(actualRoom (room deposit))
 	(goals (move F)(room studio))
 	(goals (move E)(room bedroom))
 	(goals (move D)(room corridor))
@@ -64,10 +64,12 @@
 	(graspObject (move ?block))
 	(on-top-of (upper nothing) (lower ?block))
 	?stack <- (on-top-of (upper ?block) (lower ?block2))
+	(file-commands ?file)
 	=>	
 	(retract ?stack)
 	(assert (on-top-of (upper nothing)(lower ?block2)))
 	(printout t ?block " its grasped by the robot " crlf)
+	(printout ?file "OPERATOR grasp " ?block " "  crlf)
 	(assert (Grasped))
 )
 
@@ -81,23 +83,27 @@
 	?item <- (item (name ?block)(room ?itemRoom))
 	?currentRoomF <- (actualRoom (room ?currentRoom))
 	(test (eq ?Room ?currentRoom))
+	(file-commands ?file)
 	=>
 	(retract ?grasped ?mov ?goal ?gra)
 	(modify ?item (room ?currentRoom))
+	(printout ?file "OPERATOR release " ?block " "  crlf)
 	
 )
 
 (defrule go-to-room
 	(goals (move ?block)(room ?Room))
 	(block ?block)
-	(Room (name ?Room))
+	(Room (name ?Room)(center ?x ?y))
 	(graspObject (move ?block))
 	?item <- (item (name ?block)(room ?itemRoom))
 	?currentRoomF <- (actualRoom (room ?currentRoom))
+	(file-commands ?file)
 	=>
 	(retract ?currentRoomF)
 	(assert (actualRoom (room ?Room)))
 	(assert (moving))
+	(printout ?file "OPERATOR go to " ?Room " " ?x "," ?y  crlf)
 )
 
 
@@ -112,9 +118,11 @@
 	?item <- (item (name ?block)(room ?itemRoom))
 	?currentRoomF <- (actualRoom (room ?currentRoom))
 	(test (eq ?itemRoom ?currentRoom))
+	(file-commands ?file)
 	=>
 	(printout t ?block " is in the same room: " ?itemRoom crlf)
 	(assert (graspObject (move ?block)))
+	(printout ?file "OPERATOR find " ?block " "  crlf)
 )
 
 (defrule find-object-go-to-room
@@ -122,12 +130,15 @@
 	(block ?block)
 	(Room (name ?Room))
 	?item <- (item (name ?block)(room ?itemRoom))
+	?Roomi <- ( Room (name ?itemRoom)(center ?x ?y))
 	?currentRoomF <- (actualRoom (room ?currentRoom))
 	(test (neq ?itemRoom ?currentRoom))
+	(file-commands ?file)
 	=>
 	(printout t ?block " isn't in the same room: " ?itemRoom crlf)
 	(retract ?currentRoomF)
 	(assert (actualRoom (room ?itemRoom)))
+	(printout ?file "OPERATOR go to " ?itemRoom " " ?x "," ?y  crlf)
 )
 
 
@@ -201,5 +212,3 @@
         (close ?file)
 
 )
-
-
