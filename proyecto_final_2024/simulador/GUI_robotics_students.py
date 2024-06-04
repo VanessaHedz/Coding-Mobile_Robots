@@ -670,65 +670,89 @@ class PLANNER(object):
 	# ---------------------------------- Desaparicion de bloques
 	
 	# Bloque A
-	if((flgA==0)and (X1 > ((StudioX-ROBOT_radio/2)+3) or X1 < ((StudioX-ROBOT_radio/2)-3)) ):
+	if((flgA==0) and (X1 > ((StudioX-ROBOT_radio/2)+6) or X1 < ((StudioX-ROBOT_radio/2)-6))):
 		bloqueA = C.create_oval((StudioX-ROBOT_radio/2),(StudioY-ROBOT_radio/2),(StudioX+ROBOT_radio/2),(StudioY+ROBOT_radio/2), outline="black",fill="blue", width=1)
 	else:
 		flgA=1
 	
 	# Bloque B
-	if((flgB==0)and (X1 > ((StudioX-ROBOT_radio/2)+3) or X1 < ((StudioX-ROBOT_radio/2)-3))):
+	if(((flgB==0) and (X1 > ((StudioX-ROBOT_radio/2)+3) or X1 < ((StudioX-ROBOT_radio/2)-3)))):
 		bloqueB = C.create_oval((StudioX-ROBOT_radio/2),(10+StudioY-ROBOT_radio/2),(StudioX+ROBOT_radio/2),(10+StudioY+ROBOT_radio/2), outline="black",fill="yellow", width=1)	
 	else:
-		if(flgA==1) and (flgA_2 == 1):
+		if((flgA_2 == 1) and (X1 < ((StudioX-ROBOT_radio/2)+3) and X1 > ((StudioX-ROBOT_radio/2)-3)) ):
 			flgB=1
 	
 	# Bloque C
-	if((flgC==0)and (X1 > ((CorridorX-ROBOT_radio/2)+3) or X1 < ((CorridorX-ROBOT_radio/2)-3))):
+	#if((flgC==0)and (X1 > ((CorridorX-ROBOT_radio/2)+3) or X1 < ((CorridorX-ROBOT_radio/2)-3))):
+	if(((flgC==0) and (X1 > ((StudioX-ROBOT_radio/2)+6) or X1 < ((StudioX-ROBOT_radio/2)-6)))):
 		bloqueC = C.create_oval((StudioX-ROBOT_radio/2),(20+StudioY-ROBOT_radio/2),(StudioX+ROBOT_radio/2),(20+StudioY+ROBOT_radio/2), outline="black",fill="red", width=1)
 	else:
-		if(flgB==1) and (flgB_2 == 1):
+		if((flgB_2 == 1) and (X1 < ((StudioX-ROBOT_radio/2)+6) and X1 > ((StudioX-ROBOT_radio/2)-6))):
 			flgC=1
 	
 	# Bloque D
-	if((flgD==0)and (X1 > ((CorridorX-ROBOT_radio/2)+3) or X1 < ((CorridorX-ROBOT_radio/2)-3))):
+	if((flgD==0) and (X1 > ((CorridorX-ROBOT_radio/2)+6) or X1 < ((CorridorX-ROBOT_radio/2)-6))):
 		bloqueD = C.create_oval((CorridorX-ROBOT_radio/2),(CorridorY-ROBOT_radio/2),(CorridorX+ROBOT_radio/2),(CorridorY+ROBOT_radio/2), outline="black",fill="green", width=1)
 	else:
 		flgD=1
 	
 	# Bloque E
-	if((flgE==0)and (X1 > ((CorridorX-ROBOT_radio/2)+3) or X1 < ((CorridorX-ROBOT_radio/2)-3))):
+	if(((flgE==0) and (X1 > ((CorridorX-ROBOT_radio/2)+6) or X1 < ((CorridorX-ROBOT_radio/2)-6)))):
 		bloqueE = C.create_oval((CorridorX-ROBOT_radio/2),(10+CorridorY-ROBOT_radio/2),(CorridorX+ROBOT_radio/2),(10+CorridorY+ROBOT_radio/2), outline="black",fill="pink", width=1)
 	else:
-		if(flgD==1) and (flgD_2 == 1):
+		if((flgD_2 == 1) and (X1 < ((CorridorX-ROBOT_radio/2)+6) and X1 > ((CorridorX-ROBOT_radio/2)-6)) ):
 			flgE=1
 
 	# Bloque F
-	if((flgF==0)and (X1 > ((CorridorX-ROBOT_radio/2)+3) or X1 < ((CorridorX-ROBOT_radio/2)-3))):
+	if(((flgF==0) and (X1 > ((CorridorX-ROBOT_radio/2)+6) or X1 < ((CorridorX-ROBOT_radio/2)-6)))):
 		bloqueF = C.create_oval((CorridorX-ROBOT_radio/2),(20+CorridorY-ROBOT_radio/2),(CorridorX+ROBOT_radio/2),(20+CorridorY+ROBOT_radio/2), outline="black",fill="purple", width=1)
 	else:
-		if(flgE==1) and (flgE_2 == 1):
+		if((flgE_2 == 1) and (X1 < ((CorridorX-ROBOT_radio/2)+6) and X1 > ((CorridorX-ROBOT_radio/2)-6))):
 			flgF=1
 	
 	#--------------------------- APARICION DE BLOQUES
 	
 	# Bloque A
-	if((flgA==1) and (X1 < ((CorridorX-ROBOT_radio/2)+3) and X1 > ((CorridorX-ROBOT_radio/2)-3))):
-		bloqueA = C.create_oval((ServiceX-ROBOT_radio/2),(ServiceY-ROBOT_radio/2),(ServiceX+ROBOT_radio/2),(ServiceY+ROBOT_radio/2), outline="black",fill="blue", width=1)
-	else:
+	if(((flgA==1) and (X1 < ((ServiceX-ROBOT_radio/2)+6) and X1 > ((ServiceX-ROBOT_radio/2)-6))) or (flgA_2 == 1)):
 		flgA_2=1
+		bloqueA_2 = C.create_oval((ServiceX-ROBOT_radio/2),(ServiceY-ROBOT_radio/2),(ServiceX+ROBOT_radio/2),(ServiceY+ROBOT_radio/2), outline="black",fill="blue", width=1)
+	else:
+		flgA_2=0
 	
+	# Bloque B
+	if(((flgB==1) and (X1 < ((KitchenX-ROBOT_radio/2)+6) and X1 > ((KitchenX-ROBOT_radio/2)-6))) or (flgB_2 == 1)):
+		flgB_2=1
+		bloqueB = C.create_oval((KitchenX-ROBOT_radio/2),(10+KitchenY-ROBOT_radio/2),(KitchenX+ROBOT_radio/2),(10+KitchenY+ROBOT_radio/2), outline="black",fill="yellow", width=1)		
+	else:
+		flgB_2=0
+
+	# Bloque C
+	if(((flgC==1) and (X1 < ((DepositX-ROBOT_radio/2)+6) and X1 > ((DepositX-ROBOT_radio/2)-6))) or (flgC_2 == 1)):
+		flgC_2=1
+		bloqueC = C.create_oval((DepositX-ROBOT_radio/2),(20+DepositY-ROBOT_radio/2),(DepositX+ROBOT_radio/2),(20+DepositY+ROBOT_radio/2), outline="black",fill="red", width=1)		
+	else:
+		flgC_2=0
+
 	# Bloque D
-	if((flgD==1) and (X1 < ((ServiceX-ROBOT_radio/2)+3) and X1 > ((ServiceX-ROBOT_radio/2)-3)) ):
+	if(((flgD==1) and (X1 < ((CorridorX-ROBOT_radio/2)+6) and X1 > ((CorridorX-ROBOT_radio/2)-6))) or (flgD_2 == 1)):
+		flgD_2=1
 		bloqueD = C.create_oval((CorridorX-ROBOT_radio/2),(CorridorY-ROBOT_radio/2),(CorridorX+ROBOT_radio/2),(CorridorY+ROBOT_radio/2), outline="black",fill="green", width=1)		
 	else:
-		flgD_2=1
+		flgD_2=0
 	
 	# Bloque E
-	if((flgE==1) and (X1 < ((BedroomX-ROBOT_radio/2)+3) and X1 > ((BedroomX-ROBOT_radio/2)-3)) ):
-		bloqueD = C.create_oval((BedroomX-ROBOT_radio/2),(BedroomY-ROBOT_radio/2),(BedroomX+ROBOT_radio/2),(BedroomY+ROBOT_radio/2), outline="black",fill="green", width=1)		
-	else:
+	if(((flgE==1) and (X1 < ((BedroomX-ROBOT_radio/2)+6) and X1 > ((BedroomX-ROBOT_radio/2)-6))) or (flgE_2 == 1)):
 		flgE_2=1
+		bloqueE = C.create_oval((BedroomX-ROBOT_radio/2),(BedroomY-ROBOT_radio/2),(BedroomX+ROBOT_radio/2),(BedroomY+ROBOT_radio/2), outline="black",fill="pink", width=1)		
+	else:
+		flgE_2=0
 	
+	# Bloque F
+	if(((flgF==1) and (X1 < ((StudioX-ROBOT_radio/2)+6) and X1 > ((StudioX-ROBOT_radio/2)-6))) or (flgF_2 == 1)):
+		flgF_2=1
+		bloqueF = C.create_oval((StudioX-ROBOT_radio/2),(20+StudioY-ROBOT_radio/2),(StudioX+ROBOT_radio/2),(20+StudioY+ROBOT_radio/2), outline="black",fill="purple", width=1)
+	else:
+		flgF_2=0
 
 
 	#------------------------------------------------------------------------------------------------------
